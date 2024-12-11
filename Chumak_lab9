@@ -1,0 +1,112 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <windows.h>
+
+using namespace std;
+
+class Book 
+{
+public:
+    string title;
+    string author;
+    string isbn;
+    int year;
+
+    Book(string t, string a, string i, int y) : title(t), author(a), isbn(i), year(y) {}
+};
+
+class Library 
+{
+private:
+    vector<Book> books;
+
+public:
+    void addBook(const Book& book)
+    {
+        books.push_back(book);
+    }
+
+    void removeBookByISBN(const string& isbn) 
+    {
+        books.erase(remove_if(books.begin(), books.end(),
+            [&isbn](const Book& b) { return b.isbn == isbn; }), books.end());
+    }
+
+    vector<Book> searchByAuthor(const string& author)
+    {
+        vector<Book> result;
+        for (const auto& book : books) 
+        {
+            if (book.author == author) 
+            {
+                result.push_back(book);
+            }
+        }
+        return result;
+    }
+
+    vector<Book> searchByYearRange(int startYear, int endYear) 
+    {
+        vector<Book> result;
+        for (const auto& book : books) 
+        {
+            if (book.year >= startYear && book.year <= endYear)
+            {
+                result.push_back(book);
+            }
+        }
+        return result;
+    }
+
+    void printAllBooks() 
+    {
+        if (books.empty())
+        {
+            cout << "Бібліотека пуста!" << endl;
+            return;
+        }
+        for (const auto& book : books)
+        {
+            cout << "Назва: " << book.title << ", Автор: " << book.author
+                << ", ISBN: " << book.isbn << ", Рік: " << book.year << endl;
+        }
+    }
+};
+
+int main() 
+{
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+
+    Library lib;
+
+    lib.addBook(Book("Сталкер: Тіні Чорнобиля", "Юрій круглов", "1234567890", 2001));
+    lib.addBook(Book("Метро 2033", "Дмитро Глуховський", "2345678901", 1999));
+    lib.addBook(Book("Сталкер: Чисте небо", "Юрій Круглов", "3456789012", 2010));
+
+    cout << "Всі книги в бібліотеці:" << endl;
+    lib.printAllBooks();
+
+    cout << "\nКниги автора 'Юрій Круглов':" << endl;
+    auto booksByAuthor = lib.searchByAuthor("Юрій Круглов");
+    for (const auto& book : booksByAuthor)
+    {
+        cout << book.title << endl;
+    }
+
+    cout << "\nКниги, видані між 2000 та 2010 роками:" << endl;
+    auto booksByYear = lib.searchByYearRange(2000, 2010);
+    for (const auto& book : booksByYear) 
+    {
+        cout << book.title << " (" << book.year << ")" << endl;
+    }
+
+    lib.removeBookByISBN("1234567890");
+
+    cout << "\nКниги після видалення:" << endl;
+    lib.printAllBooks();
+
+    return 0;
+}
